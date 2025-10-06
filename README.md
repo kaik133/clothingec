@@ -63,7 +63,7 @@
 
 ### 1. データベースの起動
 
--ターミナルでのMySQLへのログイン
+-ターミナルでMySQLへログイン
 
 >1️⃣ cd /Applications/MAMP/Library/bin/mysql80/bin　を入力。
 >2️⃣　./mysql -u root -p　を入力。
