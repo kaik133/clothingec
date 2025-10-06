@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文確認 - Clothing EC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a th:href="@{/home}" class="logo">Clothing EC</a>
+            <ul class="nav-menu">
+                <li><a th:href="@{/home}">ホーム</a></li>
+                <li><a th:href="@{/products}">商品一覧</a></li>
+                <li><a th:href="@{/cart}">カート</a></li>
+                <li><a th:href="@{/orders}">注文履歴</a></li>
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/dashboard}">管理画面</a>
+                </li>
+                <li>
+                    <span sec:authentication="name">ユーザー</span>
+                </li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-logout">ログアウト</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>注文確認</h1>
+        </div>
+        
+        <div class="checkout-container">
+            <div class="checkout-form">
+                <h2>配送情報</h2>
+                <form th:action="@{/orders/place}" method="post">
+                    <div class="form-group">
+                        <label for="shippingAddress">配送先住所 *</label>
+                        <textarea id="shippingAddress" name="shippingAddress" 
+                                rows="3" required placeholder="〒000-0000 都道府県市区町村..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phoneNumber">電話番号 *</label>
+                        <input type="tel" id="phoneNumber" name="phoneNumber" 
+                               required placeholder="090-1234-5678">
+                    </div>
+                    
+                    <h3>注文内容</h3>
+                    <div class="order-items">
+                        <div th:each="item : ${cart.items}" class="order-item">
+                            <img th:src="${item.product.imageUrl}" th:alt="${item.product.name}"
+                                 onerror="this.src='https://via.placeholder.com/80x80?text=No+Image'">
+                            <div class="order-item-info">
+                                <h4 th:text="${item.product.name}">Product Name</h4>
+                                <p th:text="${'サイズ: ' + item.product.size + ' / ' + item.product.color}">Size / Color</p>
+                                <p th:text="${'数量: ' + item.quantity + '個'}">Quantity</p>
+                            </div>
+                            <div class="order-item-price">
+                                <p th:text="${item.quantity != null ? '¥' + #numbers.formatDecimal(item.product.price.multiply(T(java.math.BigDecimal).valueOf(item.quantity.longValue())), 0, 'COMMA', 0, 'POINT') : ''}">¥0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>小計</span>
+                            <span th:text="${'¥' + #numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')}">¥0</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>送料</span>
+                            <span>¥0</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>合計</span>
+                            <span th:text="${'¥' + #numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')}">¥0</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-large">注文を確定する</button>
+                    <a th:href="@{/cart}" class="btn btn-secondary btn-large" style="margin-top: 10px;">カートに戻る</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Clothing EC. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

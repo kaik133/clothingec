@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ショッピングカート - Clothing EC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a th:href="@{/home}" class="logo">Clothing EC</a>
+            <ul class="nav-menu">
+                <li><a th:href="@{/home}">ホーム</a></li>
+                <li><a th:href="@{/products}">商品一覧</a></li>
+                <li><a th:href="@{/cart}" class="active">カート</a></li>
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/dashboard}">管理画面</a>
+                </li>
+                <li>
+                    <span sec:authentication="name">ユーザー</span>
+                </li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-logout">ログアウト</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>ショッピングカート</h1>
+        </div>
+        
+        <div th:if="${#lists.isEmpty(cart.items)}" class="empty-cart">
+            <p>カートに商品がありません</p>
+            <a th:href="@{/products}" class="btn btn-primary">商品を見る</a>
+        </div>
+        
+        <div th:unless="${#lists.isEmpty(cart.items)}" class="cart-content">
+            <div class="cart-items">
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>商品</th>
+                            <th>価格</th>
+                            <th>数量</th>
+                            <th>小計</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${cart.items}">
+                            <td class="cart-product">
+                                <img th:src="${item.product.imageUrl}" 
+                                     th:alt="${item.product.name}"
+                                     onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
+                                <div class="cart-product-info">
+                                    <a th:href="@{/products/{id}(id=${item.product.id})}" 
+                                       th:text="${item.product.name}">Product Name</a>
+                                    <p th:text="${item.product.size + ' / ' + item.product.color}">Size / Color</p>
+                                </div>
+                            </td>
+                            <td class="cart-price" 
+                                th:text="${'¥' + #numbers.formatDecimal(item.product.price, 0, 'COMMA', 0, 'POINT')}">¥0</td>
+                            <td class="cart-quantity">
+                                <form th:action="@{/cart/update/{id}(id=${item.id})}" method="post" class="quantity-form">
+                                    <input type="number" name="quantity" th:value="${item.quantity}" 
+                                           min="1" th:max="${item.product.stockQuantity}">
+                                    <button type="submit" class="btn-small">更新</button>
+                                </form>
+                            </td>
+
+                            <!-- ✅ 修正版 -->
+                            <td class="cart-subtotal"
+                                th:text="${'¥' + #numbers.formatDecimal(item.product.price.multiply(new java.math.BigDecimal(item.quantity)), 0, 'COMMA', 0, 'POINT')}">
+                                ¥0
+                            </td>
+
+                            <td class="cart-actions">
+                                <form th:action="@{/cart/remove/{id}(id=${item.id})}" method="post">
+                                    <button type="submit" class="btn-danger-small">削除</button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="cart-summary">
+                <h2>注文サマリー</h2>
+                <div class="summary-row">
+                    <span>小計</span>
+                    <span th:text="${'¥' + #numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')}">¥0</span>
+                </div>
+                <div class="summary-row">
+                    <span>送料</span>
+                    <span>¥0</span>
+                </div>
+                <div class="summary-row total">
+                    <span>合計</span>
+                    <span th:text="${'¥' + #numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')}">¥0</span>
+                </div>
+                
+                <button class="btn btn-primary btn-large" onclick="window.location.href='/orders/checkout'">注文手続きへ進む</button>
+                
+                <form th:action="@{/cart/clear}" method="post" style="margin-top: 10px;">
+                    <button type="submit" class="btn btn-secondary btn-large">カートを空にする</button>
+                </form>
+                
+                <a th:href="@{/products}" class="continue-shopping">買い物を続ける</a>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Clothing EC. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
+
+
+

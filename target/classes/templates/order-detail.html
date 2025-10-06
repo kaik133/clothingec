@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文詳細 - Clothing EC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a th:href="@{/home}" class="logo">Clothing EC</a>
+            <ul class="nav-menu">
+                <li><a th:href="@{/home}">ホーム</a></li>
+                <li><a th:href="@{/products}">商品一覧</a></li>
+                <li><a th:href="@{/cart}">カート</a></li>
+                <li><a th:href="@{/orders}" class="active">注文履歴</a></li>
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/dashboard}">管理画面</a>
+                </li>
+                <li>
+                    <span sec:authentication="name">ユーザー</span>
+                </li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-logout">ログアウト</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>注文詳細</h1>
+            <a th:href="@{/orders}" class="btn btn-secondary">注文履歴に戻る</a>
+        </div>
+        
+        <div th:if="${param.success}" class="alert alert-success">
+            注文が完了しました！
+        </div>
+        
+        <div class="order-detail-container">
+            <div class="order-info-box">
+                <h2>注文情報</h2>
+                <p><strong>注文番号:</strong> <span th:text="${order.id}">0</span></p>
+                <p><strong>注文日:</strong> <span th:text="${#temporals.format(order.orderDate, 'yyyy年MM月dd日 HH:mm')}">日時</span></p>
+                <p><strong>ステータス:</strong> 
+                    <span th:class="'order-status ' + ${order.status.name()}"
+                          th:text="${order.status.name() == 'PENDING' ? '保留中' :
+                                   (order.status.name() == 'CONFIRMED' ? '確認済み' :
+                                   (order.status.name() == 'PROCESSING' ? '処理中' :
+                                   (order.status.name() == 'SHIPPED' ? '発送済み' :
+                                   (order.status.name() == 'DELIVERED' ? '配達完了' : 'キャンセル'))))}">
+                        ステータス
+                    </span>
+                </p>
+                <p th:if="${order.shippedDate}">
+                    <strong>発送日:</strong> <span th:text="${#temporals.format(order.shippedDate, 'yyyy年MM月dd日')}">日時</span>
+                </p>
+                <p th:if="${order.deliveredDate}">
+                    <strong>配達日:</strong> <span th:text="${#temporals.format(order.deliveredDate, 'yyyy年MM月dd日')}">日時</span>
+                </p>
+            </div>
+            
+            <div class="order-info-box">
+                <h2>配送先情報</h2>
+                <p><strong>住所:</strong><br><span th:text="${order.shippingAddress}">住所</span></p>
+                <p><strong>電話番号:</strong> <span th:text="${order.phoneNumber}">電話番号</span></p>
+            </div>
+            
+            <div class="order-items-detail">
+                <h2>注文商品</h2>
+                <table class="order-items-table">
+                    <thead>
+                        <tr>
+                            <th>商品</th>
+                            <th>単価</th>
+                            <th>数量</th>
+                            <th>小計</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${order.items}">
+                            <td>
+                                <div class="order-product">
+                                    <img th:src="${item.product.imageUrl}" th:alt="${item.product.name}"
+                                         onerror="this.src='https://via.placeholder.com/80x80?text=No+Image'">
+                                    <div>
+                                        <p th:text="${item.product.name}">Product Name</p>
+                                        <p class="product-meta" th:text="${item.product.size + ' / ' + item.product.color}">Size / Color</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td th:text="${'¥' + #numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')}">¥0</td>
+                            <td th:text="${item.quantity}">0</td>
+                            <td th:text="${'¥' + #numbers.formatDecimal(item.subtotal, 0, 'COMMA', 0, 'POINT')}">¥0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="order-total-box">
+                <div class="summary-row">
+                    <span>小計</span>
+                    <span th:text="${'¥' + #numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')}">¥0</span>
+                </div>
+                <div class="summary-row">
+                    <span>送料</span>
+                    <span>¥0</span>
+                </div>
+                <div class="summary-row total">
+                    <span>合計</span>
+                    <span th:text="${'¥' + #numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')}">¥0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Clothing EC. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

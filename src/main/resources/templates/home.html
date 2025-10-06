@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ホーム - Clothing EC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a th:href="@{/home}" class="logo">Clothing EC</a>
+            <ul class="nav-menu">
+                <li><a th:href="@{/home}">ホーム</a></li>
+                <li><a th:href="@{/products}">商品一覧</a></li>
+                <li><a th:href="@{/cart}">カート</a></li>
+                <li><a th:href="@{/orders}">注文履歴</a></li>
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/dashboard}">管理画面</a>
+                </li>
+                <li>
+                    <span sec:authentication="name">ユーザー</span>
+                </li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-logout">ログアウト</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="hero">
+            <h1>Clothing ECへようこそ</h1>
+            <p>最新のファッションアイテムをお届けします</p>
+            <a th:href="@{/products}" class="btn btn-primary">商品を見る</a>
+        </div>
+        
+        <section class="featured-products">
+            <h2>おすすめ商品</h2>
+            <div class="product-grid">
+                <div th:each="product : ${products}" class="product-card">
+                    <a th:href="@{/products/{id}(id=${product.id})}">
+                        <img th:src="${product.imageUrl}" 
+                             th:alt="${product.name}"
+                             onerror="this.src='https://via.placeholder.com/300x400?text=No+Image'">
+                        <div class="product-info">
+                            <h3 th:text="${product.name}">Product Name</h3>
+                            <p class="product-price" th:text="${'¥' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">¥0</p>
+                            <p class="product-category" th:text="${product.category}">Category</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Clothing EC. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

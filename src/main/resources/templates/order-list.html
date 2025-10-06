@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文履歴 - Clothing EC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a th:href="@{/home}" class="logo">Clothing EC</a>
+            <ul class="nav-menu">
+                <li><a th:href="@{/home}">ホーム</a></li>
+                <li><a th:href="@{/products}">商品一覧</a></li>
+                <li><a th:href="@{/cart}">カート</a></li>
+                <li><a th:href="@{/orders}" class="active">注文履歴</a></li>
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/dashboard}">管理画面</a>
+                </li>
+                <li>
+                    <span sec:authentication="name">ユーザー</span>
+                </li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-logout">ログアウト</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>注文履歴</h1>
+        </div>
+        
+        <div class="orders-list">
+            <div th:if="${#lists.isEmpty(orders)}" class="empty-orders">
+                <p>注文履歴がありません</p>
+                <a th:href="@{/products}" class="btn btn-primary">商品を見る</a>
+            </div>
+            
+            <div th:each="order : ${orders}" class="order-card">
+                <div class="order-header">
+                    <div>
+                        <h3>注文番号: <span th:text="${order.id}">0</span></h3>
+                        <p th:text="${'注文日: ' + #temporals.format(order.orderDate, 'yyyy年MM月dd日 HH:mm')}">注文日</p>
+                    </div>
+                    <div>
+                        <span th:class="'order-status ' + ${order.status.name()}"
+                              th:text="${order.status.name() == 'PENDING' ? '保留中' :
+                                       (order.status.name() == 'CONFIRMED' ? '確認済み' :
+                                       (order.status.name() == 'PROCESSING' ? '処理中' :
+                                       (order.status.name() == 'SHIPPED' ? '発送済み' :
+                                       (order.status.name() == 'DELIVERED' ? '配達完了' : 'キャンセル'))))}">
+                            ステータス
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="order-items-preview">
+                    <div th:each="item : ${order.items}" class="order-item-preview">
+                        <img th:src="${item.product.imageUrl}" th:alt="${item.product.name}"
+                             onerror="this.src='https://via.placeholder.com/60x60?text=No+Image'">
+                        <div>
+                            <p th:text="${item.product.name}">Product Name</p>
+                            <p th:text="${'数量: ' + item.quantity}">Quantity</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-footer">
+                    <div class="order-total">
+                        合計: <span th:text="${'¥' + #numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')}">¥0</span>
+                    </div>
+                    <a th:href="@{/orders/{id}(id=${order.id})}" class="btn btn-secondary">詳細を見る</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Clothing EC. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

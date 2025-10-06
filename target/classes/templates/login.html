@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン - Clothing EC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>ログイン</h1>
+            
+            <div th:if="${param.error}" class="alert alert-error">
+                ユーザー名またはパスワードが正しくありません
+            </div>
+            
+            <div th:if="${param.logout}" class="alert alert-success">
+                ログアウトしました
+            </div>
+            
+            <div th:if="${param.registered}" class="alert alert-success">
+                登録が完了しました。ログインしてください
+            </div>
+            
+           <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label for="username">ユーザー名</label>
+                    <input type="text" id="username" name="username" required autofocus>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">パスワード</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-large">ログイン</button>
+            </form>
+            
+            <div class="register-link">
+                <p>アカウントをお持ちでない方は<a th:href="@{/register}">こちら</a></p>
+            </div>
+            
+            <div class="login-hint">
+                <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
+                    <strong>テストアカウント：</strong><br>
+                    管理者: admin / admin123<br>
+                    一般: user1 / user123
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品一覧 - Clothing EC</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <!-- ナビゲーションバー -->
+    <nav class="navbar">
+        <div class="container">
+            <a th:href="@{/home}" class="logo">Clothing EC</a>
+            <ul class="nav-menu">
+                <li><a th:href="@{/home}">ホーム</a></li>
+                <li><a th:href="@{/products}" class="active">商品一覧</a></li>
+                <li><a th:href="@{/cart}">カート</a></li>
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/dashboard}">管理画面</a>
+                </li>
+                <li>
+                    <span sec:authentication="name">ユーザー</span>
+                </li>
+                <li>
+                    <form th:action="@{/logout}" method="post" style="display:inline;">
+                        <button type="submit" class="btn-logout">ログアウト</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- メインコンテンツ -->
+    <div class="container">
+        <!-- ページヘッダー -->
+        <div class="page-header">
+            <h1>商品一覧</h1>
+        </div>
+
+        <!-- フィルターセクション -->
+        <div class="filter-section">
+            <form th:action="@{/products}" method="get">
+                <div class="search-box">
+                    <input type="text" name="search" placeholder="商品を検索..." 
+                           th:value="${param.search}">
+                    <button type="submit" class="btn btn-secondary">検索</button>
+                </div>
+            </form>
+
+            <div class="category-filter">
+                <a th:href="@{/products}" 
+                   th:classappend="${selectedCategory == null} ? 'active' : ''">すべて</a>
+                <a th:href="@{/products(category='トップス')}"
+                   th:classappend="${selectedCategory == 'トップス'} ? 'active' : ''">トップス</a>
+                <a th:href="@{/products(category='ボトムス')}"
+                   th:classappend="${selectedCategory == 'ボトムス'} ? 'active' : ''">ボトムス</a>
+                <a th:href="@{/products(category='アウター')}"
+                   th:classappend="${selectedCategory == 'アウター'} ? 'active' : ''">アウター</a>
+                <a th:href="@{/products(category='アクセサリー')}"
+                   th:classappend="${selectedCategory == 'アクセサリー'} ? 'active' : ''">アクセサリー</a>
+            </div>
+        </div>
+
+        <!-- 商品グリッド -->
+        <div class="product-grid">
+            <div th:each="product : ${products}" class="product-card">
+                <a th:href="@{/products/{id}(id=${product.id})}">
+                    <div class="product-image">
+                        <img th:src="${product.imageUrl}" 
+                             th:alt="${product.name}"
+                             onerror="this.src='https://via.placeholder.com/300x400?text=No+Image'">
+                        <span th:if="${product.status.name() == 'OUT_OF_STOCK'}" 
+                              class="stock-badge out-of-stock">在庫切れ</span>
+                    </div>
+                    <div class="product-info">
+                        <h3 th:text="${product.name}">Product Name</h3>
+                        <p class="product-price" 
+                           th:text="${'¥' + #numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">
+                           ¥0
+                        </p>
+                        <p class="product-category" th:text="${product.category}">Category</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 商品がない場合 -->
+        <div th:if="${#lists.isEmpty(products)}" class="no-products">
+            <p>商品が見つかりませんでした</p>
+        </div>
+    </div>
+
+    <!-- フッター -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Clothing EC. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
+
