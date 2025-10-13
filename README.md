@@ -1,6 +1,6 @@
 # Clothing EC Site - 衣類ECサイト
 
-##　Spring Boot、Thymeleaf、MySQL、HTML、CSSを使用したデスクトップ向けECサイトです。
+#開発環境：HTML、CSS、MySQL、Java、Springboot
 
 #開発経緯
 >就職活動において実績をアピールしたいと考えたときに、
